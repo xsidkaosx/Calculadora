@@ -1,7 +1,4 @@
-var self;
-var accion;
-var memoria;
-var pantalla;
+var self, accion, memoria, pantalla;
 var Calculadora = {
   init: function() {
     self=this;
@@ -10,14 +7,13 @@ var Calculadora = {
     pantalla = document.getElementById('display');
     pantalla.innerHTML = 0;
     var teclas = document.getElementsByClassName('tecla');
-    var numeros = ["0","1","2","3","4","5","6","7","8","9"];
     for (var i = 0; i < teclas.length; i++) {
         teclas[i].addEventListener('click',this.listenClick);
     }
   },
   listenClick: function() {
     var pantalla = document.getElementById('display');
-    var numeros = ["0","1","2","3","4","5","6","7","8","9"];
+    var numeros = ["0","1","2","3","4","5","6","7","8","9","punto","on"];
     var id = this.id;
     if(numeros.indexOf(id) > -1){
       self.mostrar(id);
@@ -36,13 +32,25 @@ var Calculadora = {
     if(id=="por"){
       accion="MULTI";
     }
+    if(id=="dividido"){
+      accion="DIVIDIR";
+    }
+    if(id=="raiz"){
+      self.raiz();
+      return;
+    }
+    if(id=="sign"){
+      self.agrSigno();
+      return;
+    }
     memoria = pantalla.innerHTML;
-    pantalla.innerHTML = 0;
+    pantalla.innerHTML = "";
   },
   sumar: function(a,b) {
-    console.log(a,b);
     if(pantalla){
-      pantalla.innerHTML = parseInt(a) + parseInt(b);
+      var total = parseFloat(a) + parseFloat(b) + "";
+      pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
+      //accion="NONE"; Modo Veloz
     }else{
       alert("No se ha podido capturar el valor en pantalla");
     }
@@ -50,27 +58,68 @@ var Calculadora = {
   restar: function(a,b) {
     console.log(a,b);
     if(pantalla){
-      pantalla.innerHTML = parseInt(a) - parseInt(b);
+      var total = parseFloat(a) - parseFloat(b) + "";
+      pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
+      //accion="NONE"; Modo Veloz
     }else{
       alert("No se ha podido capturar el valor en pantalla");
     }
   },
   multiplicar: function(a,b) {
     if(pantalla){
-      pantalla.innerHTML = parseInt(a) * parseInt(b);
+      var total =  parseFloat(a) * parseFloat(b) + "";
+      pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
+      //accion="NONE"; Modo Veloz
     }else{
       alert("No se ha podido capturar el valor en pantalla");
     }
   },
-  division: function(a,b) {
-
+  dividir: function(a,b) {
+    if(pantalla){
+      var total =  parseFloat(a) / parseFloat(b) + "";
+      pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
+      //accion="NONE"; Modo Veloz
+    }else{
+      alert("No se ha podido capturar el valor en pantalla");
+    }
+  },
+  raiz: function(a){
+    if(pantalla){
+      var numero = parseFloat(pantalla.innerHTML);
+      var total = 0;
+      if(numero>0){
+        total = Math.sqrt(numero)+"";
+      }
+      pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
+      //accion="NONE"; Modo Veloz
+    }else{
+      alert("No se ha podido capturar el valor en pantalla");
+    }
   },
   mostrar: function(valor){
     var actual = pantalla.innerHTML;
-    pantalla.innerHTML = parseInt(actual + valor);
+    if(valor=="on"){
+      pantalla.innerHTML = 0;
+      return;
+    }
+    if(valor=="punto"){
+      valor=(actual.indexOf(".")>-1)?"":".";
+    }else{
+      actual=(actual=="0")?"":actual;
+    }
+    var total = actual + valor
+    pantalla.innerHTML = (total.length>8)?total.slice(0,8):total;
   },
   calcular: function(accion,pantalla){
     var actual = pantalla.innerHTML;
+    if(!memoria || memoria == ""){
+      alert("Se ha utilizado un formato no valido.");
+      return;
+    }
+    if(!actual || actual == ""){
+      alert("Se ha utilizado un formato no valido.");
+      return;
+    }
     switch (accion) {
       case "SUMAR":
         this.sumar(memoria,actual);
@@ -81,8 +130,23 @@ var Calculadora = {
       case "MULTI":
         this.multiplicar(memoria,actual);
         break;
+      case "DIVIDIR":
+        this.dividir(memoria,actual);
+        break;
       default:
 
+    }
+  },
+  agrSigno: function(){
+    if(pantalla){
+      var actual = pantalla.innerHTML;
+      if(actual != "0"){
+        console.log(actual);
+        actual = (actual.indexOf("-")>-1)?actual.replace("-",""): "-"+actual;
+        pantalla.innerHTML = actual;
+      }
+    }else{
+      alert("No se ha podido capturar el valor en pantalla");
     }
   }
 }
